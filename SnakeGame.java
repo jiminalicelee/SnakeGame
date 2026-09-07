@@ -5,6 +5,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.Random;
+import java.util.Queue;
+import java.util.ArrayDeque;
+import java.util.Map;
 
 public class SnakeGame extends JFrame {
     public SnakeGame() {
@@ -28,9 +31,16 @@ class GamePanel extends JPanel implements ActionListener {
     private static final int TILE_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final int DELAY = 100; // Game speed in ms
+    private static final Map<Character, Character> OPPOSITE = Map.of(
+        'L', 'R',
+        'R', 'L',
+        'U', 'D',
+        'D', 'U'
+    );
 
     private final int[] x = new int[GAME_UNITS];
     private final int[] y = new int[GAME_UNITS];
+    private final Queue<Character> directionQueue = new ArrayDeque<>();
     private int bodyParts = 3;
     private int foodX;
     private int foodY;
@@ -48,7 +58,7 @@ class GamePanel extends JPanel implements ActionListener {
         startGame();
     }
 
-    public void startGame() {
+    private void startGame() {
         newFood();
         running = true;
         timer = new Timer(DELAY, this);
@@ -61,7 +71,7 @@ class GamePanel extends JPanel implements ActionListener {
         draw(g);
     }
 
-    public void draw(Graphics g) {
+    private void draw(Graphics g) {
         if (running) {
             // Draw Food
             g.setColor(Color.RED);
@@ -86,24 +96,34 @@ class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    public void newFood() {
-        // Generate food at coordinates that do not overlap with the snake body
-        while (true) {
-            foodX = random.nextInt((int) (SCREEN_WIDTH / TILE_SIZE)) * TILE_SIZE;
-            foodY = random.nextInt((int) (SCREEN_HEIGHT / TILE_SIZE)) * TILE_SIZE;
-            boolean regenerate = false;
-            for (int i = 0; i < bodyParts; i++) {
-                if (foodX == x[i] && foodY == y[i]) {
-                    regenerate = true;
-                }
+    private boolean overlapsSnake(int px, int py) {
+        for (int i = 0; i < bodyParts; i++) {
+            if (px == x[i] && py == y[i]) {
+                return true;
             }
-            if (!regenerate) {
+        }
+        return false;
+    }
+
+    private void newFood() {
+        // Generate food at coordinates that do not overlap with the snake body
+        do {
+            foodX = random.nextInt(SCREEN_WIDTH / TILE_SIZE) * TILE_SIZE;
+            foodY = random.nextInt(SCREEN_HEIGHT / TILE_SIZE) * TILE_SIZE;
+        } while (overlapsSnake(foodX, foodY));
+    }
+
+    private void checkValidMove() {
+        Character newDirection;
+        while ((newDirection = directionQueue.poll()) != null) {
+            if (OPPOSITE.get(newDirection) != direction) {
+                direction = newDirection;
                 break;
             }
         }
     }
 
-    public void move() {
+    private void move() {
         for (int i = bodyParts; i > 0; i--) {
             x[i] = x[i - 1];
             y[i] = y[i - 1];
@@ -117,7 +137,7 @@ class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    public void checkFood() {
+    private void checkFood() {
         if ((x[0] == foodX) && (y[0] == foodY)) {
             bodyParts++;
             if (bodyParts == GAME_UNITS) {
@@ -130,7 +150,7 @@ class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    public void checkCollisions() {
+    private void checkCollisions() {
         // Check if head collides with body
         for (int i = bodyParts - 1; i > 0; i--) {
             if ((x[0] == x[i]) && (y[0] == y[i])) {
@@ -148,7 +168,7 @@ class GamePanel extends JPanel implements ActionListener {
         }
     }
 
-    public void endGame(Graphics g) {
+    private void endGame(Graphics g) {
         g.setColor(Color.RED);
         g.setFont(new Font("SansSerif", Font.BOLD, 40));
         FontMetrics metrics = getFontMetrics(g.getFont());
@@ -165,6 +185,7 @@ class GamePanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (running) {
+            checkValidMove();
             move();
             checkFood();
             checkCollisions();
@@ -172,25 +193,25 @@ class GamePanel extends JPanel implements ActionListener {
         repaint();
     }
 
-    public class MyKeyAdapter extends KeyAdapter {
+    private class MyKeyAdapter extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             switch (e.getKeyCode()) {
                 case KeyEvent.VK_LEFT -> {
-                    if (direction != 'R')
-                        direction = 'L';
+                    if (directionQueue.size() < 2)
+                        directionQueue.add('L');
                 }
                 case KeyEvent.VK_RIGHT -> {
-                    if (direction != 'L')
-                        direction = 'R';
+                    if (directionQueue.size() < 2)
+                        directionQueue.add('R');
                 }
                 case KeyEvent.VK_UP -> {
-                    if (direction != 'D')
-                        direction = 'U';
+                    if (directionQueue.size() < 2)
+                        directionQueue.add('U');
                 }
                 case KeyEvent.VK_DOWN -> {
-                    if (direction != 'U')
-                        direction = 'D';
+                    if (directionQueue.size() < 2)
+                        directionQueue.add('D');
                 }
             }
         }
