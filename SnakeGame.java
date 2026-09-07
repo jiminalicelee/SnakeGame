@@ -33,7 +33,7 @@ class GamePanel extends JPanel implements ActionListener {
     private static final int TILE_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final int DELAY = 100; // Game speed in ms
-    private static final int START_DELAY_SECONDS = 15;
+    private static final int START_DELAY_SECONDS = 3;
     private static final Map<Character, Character> OPPOSITE = Map.of(
         'L', 'R',
         'R', 'L',
