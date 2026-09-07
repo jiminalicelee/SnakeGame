@@ -31,6 +31,7 @@ class GamePanel extends JPanel implements ActionListener {
     private static final int TILE_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final int DELAY = 100; // Game speed in ms
+    private static final int START_DELAY_SECONDS = 3;
     private static final Map<Character, Character> OPPOSITE = Map.of(
         'L', 'R',
         'R', 'L',
@@ -47,7 +48,10 @@ class GamePanel extends JPanel implements ActionListener {
     private char direction = 'R'; // 'U', 'D', 'L', 'R'
     private boolean running = false;
     private boolean won = false;
+    private boolean starting = true;
+    private int countdown = START_DELAY_SECONDS;
     private Timer timer;
+    private Timer countdownTimer;
     private final Random random = new Random();
 
     public GamePanel() {
@@ -60,9 +64,18 @@ class GamePanel extends JPanel implements ActionListener {
 
     private void startGame() {
         newFood();
-        running = true;
-        timer = new Timer(DELAY, this);
-        timer.start();
+        countdownTimer = new Timer(1000, e -> {
+            countdown--;
+            if (countdown <= 0) {
+                countdownTimer.stop();
+                starting = false;
+                running = true;
+                timer = new Timer(DELAY, this);
+                timer.start();
+            }
+            repaint();
+        });
+        countdownTimer.start();
     }
 
     @Override
@@ -72,7 +85,9 @@ class GamePanel extends JPanel implements ActionListener {
     }
 
     private void draw(Graphics g) {
-        if (running) {
+        if (starting) {
+            drawCountdown(g);
+        } else if (running) {
             // Draw Food
             g.setColor(Color.RED);
             g.fillOval(foodX, foodY, TILE_SIZE, TILE_SIZE);
@@ -166,6 +181,19 @@ class GamePanel extends JPanel implements ActionListener {
         if (!running) {
             timer.stop();
         }
+    }
+
+    private void drawCountdown(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("SansSerif", Font.BOLD, 40));
+        FontMetrics titleMetrics = getFontMetrics(g.getFont());
+        String title = "Get Ready!";
+        g.drawString(title, (SCREEN_WIDTH - titleMetrics.stringWidth(title)) / 2, SCREEN_HEIGHT / 2 - 30);
+
+        g.setFont(new Font("SansSerif", Font.BOLD, 60));
+        FontMetrics countMetrics = getFontMetrics(g.getFont());
+        String countText = String.valueOf(countdown);
+        g.drawString(countText, (SCREEN_WIDTH - countMetrics.stringWidth(countText)) / 2, SCREEN_HEIGHT / 2 + 40);
     }
 
     private void endGame(Graphics g) {
