@@ -2,10 +2,10 @@
 
 A classic Snake game built from scratch in Java using the Swing GUI toolkit and an `ActionListener`-driven game loop: no external dependencies, no game engine, just the JDK standard library.
 
-<figure align="center">
+<div align="center">
   <img src="./static/SnakeGameDemo.gif" width="350" />
-  <figcaption><em>Figure 1: Application Demo</em></figcaption>
-</figure>
+  <p><em>Figure 1: Application Demo</em></p>
+</div>
 
 ## Features
 
