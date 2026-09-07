@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.Queue;
 import java.util.ArrayDeque;
 import java.util.Map;
+import java.io.File;
+import java.io.IOException;
 
 public class SnakeGame extends JFrame {
     public SnakeGame() {
@@ -31,7 +33,7 @@ class GamePanel extends JPanel implements ActionListener {
     private static final int TILE_SIZE = 25;
     private static final int GAME_UNITS = (SCREEN_WIDTH * SCREEN_HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final int DELAY = 100; // Game speed in ms
-    private static final int START_DELAY_SECONDS = 3;
+    private static final int START_DELAY_SECONDS = 15;
     private static final Map<Character, Character> OPPOSITE = Map.of(
         'L', 'R',
         'R', 'L',
@@ -53,6 +55,18 @@ class GamePanel extends JPanel implements ActionListener {
     private Timer timer;
     private Timer countdownTimer;
     private final Random random = new Random();
+    private static final Font BASE_FONT = loadFont();
+
+    private static Font loadFont() {
+        try {
+            Font font = Font.createFont(Font.TRUETYPE_FONT,
+                    new File("static/Press_Start_2P/PressStart2P-Regular.ttf"));
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            return font;
+        } catch (FontFormatException | IOException e) {
+            return new Font("SansSerif", Font.PLAIN, 14);
+        }
+    }
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -104,7 +118,7 @@ class GamePanel extends JPanel implements ActionListener {
 
             // Draw Score
             g.setColor(Color.WHITE);
-            g.setFont(new Font("SansSerif", Font.BOLD, 14));
+            g.setFont(BASE_FONT.deriveFont(14f));
             g.drawString("Score: " + (bodyParts - 3), 10, 20);
         } else {
             endGame(g);
@@ -185,29 +199,32 @@ class GamePanel extends JPanel implements ActionListener {
 
     private void drawCountdown(Graphics g) {
         g.setColor(Color.WHITE);
-        g.setFont(new Font("SansSerif", Font.BOLD, 40));
+        g.setFont(BASE_FONT.deriveFont(40f));
         FontMetrics titleMetrics = getFontMetrics(g.getFont());
         String title = "Get Ready!";
         g.drawString(title, (SCREEN_WIDTH - titleMetrics.stringWidth(title)) / 2, SCREEN_HEIGHT / 2 - 30);
 
-        g.setFont(new Font("SansSerif", Font.BOLD, 60));
+        g.setFont(BASE_FONT.deriveFont(60f));
         FontMetrics countMetrics = getFontMetrics(g.getFont());
         String countText = String.valueOf(countdown);
         g.drawString(countText, (SCREEN_WIDTH - countMetrics.stringWidth(countText)) / 2, SCREEN_HEIGHT / 2 + 40);
     }
 
     private void endGame(Graphics g) {
-        g.setColor(Color.RED);
-        g.setFont(new Font("SansSerif", Font.BOLD, 40));
+        g.setFont(BASE_FONT.deriveFont(40f));
         FontMetrics metrics = getFontMetrics(g.getFont());
         if (won) {
+            g.setColor(Color.GREEN);
             g.drawString("YOU WIN!", (SCREEN_WIDTH - metrics.stringWidth("YOU WIN!")) / 2, SCREEN_HEIGHT / 2);
         } else {
+            g.setColor(Color.RED);
             g.drawString("Game Over", (SCREEN_WIDTH - metrics.stringWidth("Game Over")) / 2, SCREEN_HEIGHT / 2);
         }
         g.setColor(Color.WHITE);
-        g.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        g.drawString("Final Score: " + (bodyParts - 3), (SCREEN_WIDTH - 120) / 2, (SCREEN_HEIGHT / 2) + 40);
+        g.setFont(BASE_FONT.deriveFont(20f));
+        FontMetrics scoreMetrics = getFontMetrics(g.getFont());
+        String finalScore = "Final Score: " + (bodyParts - 3);
+        g.drawString(finalScore, (SCREEN_WIDTH - scoreMetrics.stringWidth(finalScore)) / 2, (SCREEN_HEIGHT / 2) + 40);
     }
 
     @Override

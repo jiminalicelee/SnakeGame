@@ -59,6 +59,7 @@ An early version validated direction changes directly against the *current rende
 
 ```
 SnakeGame.java   # Full game source (entry point + game panel + input handling)
+static/          # Static files, including the .gif file for the demo and game font
 README.md
 ```
 
@@ -68,6 +69,10 @@ README.md
 - Persistent high score
 - Pause/resume and restart-without-relaunch
 - Configurable board size / difficulty presets
+
+## Credits
+
+Uses the [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) font by Cody "CodeMan38" Boisclair, licensed under the SIL Open Font License 1.1 (see `static/Press_Start_2P/OFL.txt`).
 
 ## License
 
