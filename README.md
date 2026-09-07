@@ -10,11 +10,11 @@ A classic Snake game built from scratch in Java using the Swing GUI toolkit and 
 ## Features
 
 - **Smooth game loop** driven by a `javax.swing.Timer`, rendered via custom `paintComponent` overrides on a `JPanel`
-- **Buffered input queue**, arrow-key presses are queued (`ArrayDeque<Character>`) and validated one tile-move at a time, which prevents the classic "double-tap reversal" bug where a snake could instantly reverse into itself on fast input
-- **Illegal-move protection**, a direction can never reverse 180° into the snake's own neck, using an `OPPOSITE` direction lookup map
+- **Buffered input queue**: arrow-key presses are queued (`ArrayDeque<Character>`) and validated one tile-move at a time, which prevents the classic "double-tap reversal" bug where a snake could instantly reverse into itself on fast input
+- **Illegal-move protection**: a direction can never reverse 180° into the snake's own neck, using an `OPPOSITE` direction lookup map
 - **Randomized food placement** that always avoids spawning on top of the snake's body
 - **Live score tracking** rendered directly on the canvas
-- **Win condition**, filling the entire board with the snake ends the game with a "YOU WIN!" screen, not just an infinite loop
+- **Win condition**: filling the entire board with the snake ends the game with a "YOU WIN!" screen, not just an infinite loop
 - **Game-over screen** with final score, centered using `FontMetrics` for accurate text placement regardless of window size
 
 ## Controls
